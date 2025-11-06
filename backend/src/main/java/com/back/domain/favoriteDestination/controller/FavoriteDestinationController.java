@@ -1,4 +1,4 @@
-package com.back.domain.travelSchedule.controller;
+package com.back.domain.favoriteDestination.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -6,6 +6,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("/schedule")
-public class TravelScheduleController {
+@RequestMapping("/favorites")
+public class FavoriteDestinationController {
 }

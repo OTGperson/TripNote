@@ -1,4 +1,4 @@
-package com.back.domain.favoriteDestination.controller;
+package com.back.domain.travelScheduleDestination.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -6,6 +6,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("/fade")
-public class FaDeController {
+@RequestMapping("/tsd")
+public class TSDController {
 }
