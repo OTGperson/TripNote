@@ -1,10 +1,9 @@
 package com.back.domain.post.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDateTime;
 
@@ -18,11 +17,19 @@ public class Post {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
+
   private Long author_id;
   private String title;
+
+  @Column(columnDefinition = "TEXT")
   private String content;
-  private String weather;
+
   private boolean is_public;
+
+  @CreatedDate
+  @Column(updatable = false)
   private LocalDateTime created_at;
+
+  @LastModifiedDate
   private LocalDateTime updated_at;
 }

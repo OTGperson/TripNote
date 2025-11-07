@@ -12,16 +12,13 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class FavoriteDestination {
-
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "user_id", nullable = false)
+  @ManyToOne
   private User user;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "destination_id", nullable = false)
+  @ManyToOne
   private Destination destination;
 }

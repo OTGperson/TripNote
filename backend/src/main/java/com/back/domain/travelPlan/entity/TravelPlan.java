@@ -4,8 +4,8 @@ import com.back.domain.travelSchedule.entity.TravelSchedule;
 import com.back.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -18,42 +18,27 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(indexes = {
-  @Index(name = "idx_plan_owner_created", columnList = "author_id, created_at"),
-  @Index(name = "idx_plan_public", columnList = "is_public")
-})
 public class TravelPlan {
-
-  @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "author_id", nullable = false)
+  @ManyToOne
   private User author;
 
-  @Column(nullable = false, length = 120)
   private String title;
-
-  @Column(name = "start_date", nullable = false)
   private LocalDate startDate;
-
-  @Column(name = "end_date", nullable = false)
   private LocalDate endDate;
-
-  @Column(name = "is_public", nullable = false)
   private boolean isPublic;
-
-  @Column(length = 2000)
   private String memo;
 
-  @CreationTimestamp
-  @Column(name = "created_at", updatable = false)
+  @CreatedDate
+  @Column(updatable = false)
   private LocalDateTime createdAt;
 
-  @UpdateTimestamp
-  @Column(name = "updated_at")
+  @LastModifiedDate
   private LocalDateTime updatedAt;
 
-  @OneToMany(mappedBy = "plan", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(mappedBy = "plan", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
   private List<TravelSchedule> schedules = new ArrayList<>();
 }

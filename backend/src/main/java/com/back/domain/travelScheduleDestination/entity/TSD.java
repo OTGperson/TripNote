@@ -19,24 +19,13 @@ import java.time.LocalTime;
     @Index(name = "idx_tsd_destination", columnList = "destination_id")
   })
 public class TSD {
-
-  @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "schedule_id", nullable = false)
+  @ManyToOne
   private TravelSchedule schedule;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "destination_id", nullable = false)
+  @ManyToOne
   private Destination destination;
-
-  // 같은 일정 내 순서/시간/메모 — “방문”에 귀속된 정보
-  private Integer orderNo;
-
-  private LocalTime visitStartTime;
-  private LocalTime visitEndTime;
-
-  @Column(length = 1000)
-  private String note;
 }
