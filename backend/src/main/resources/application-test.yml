@@ -1,11 +1,37 @@
 spring:
   data:
     redis:
-      port: 26380
+      host: ${custom.prod.redis.host}
+      port: ${custom.prod.redis.port}
+      username: ${custom.prod.redis.username}
+      password: ${custom.prod.redis.password}
   datasource:
-    url: jdbc:h2:mem:db_test;MODE=MySQL # 메모리 DB
-    username: sa
-    password:
-    driver-class-name: org.h2.Driver
+    url: jdbc:postgresql://otg-db-1.internal:5432/app_2025_10_24_prod
+    username: postgres
+    password: ${custom.prod.db.password}
+    driver-class-name: org.postgresql.Driver
     hikari:
       auto-commit: false
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: false
+        highlight_sql: false
+        use_sql_comments: false
+logging:
+  level:
+    com.back: INFO
+    org.hibernate.SQL: INFO
+    org.hibernate.orm.jdbc.bind: INFO
+    org.hibernate.orm.jdbc.extract: INFO
+    org.springframework.transaction.interceptor: INFO
+custom:
+  site:
+    cookieDomain: "${custom.prod.cookieDomain}"
+    frontUrl: "${custom.prod.frontUrl}"
+    backUrl: "${custom.prod.backUrl}"
+    name: APP1
+  genFile:
+    dirPath: /gen

@@ -1,6 +1,6 @@
-package com.backend;
+package com.back;
 
-import com.backend.domain.user.service.UserService;
+import com.back.domain.user.service.UserService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,7 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 @AutoConfigureMockMvc
 @Transactional
 @ActiveProfiles({"test"})
-class BackendApplicationTests {
+class BackApplicationTests {
 
 	@Autowired
 	private MockMvc mvc;
