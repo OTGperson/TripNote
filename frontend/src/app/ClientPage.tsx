@@ -1,27 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import Link from "next/link";
 
 export default function ClientPage() {
-  const [members, setMembers] = useState([]);
-
-  useEffect(() => {
-    const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-
-    fetch(`${API_BASE_URL}/api/v1/member`)
-      .then((response) => response.json())
-      .then((data) => setMembers(data));
-  }, []);
-
   return (
-    <>
-      <h1>client</h1>
-      <ul>
-        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-        {members.map((member: any) => (
-          <li key={member.id}>{member.username}</li>
-        ))}
-      </ul>
-    </>
+    <main style={{ padding: 32 }}>
+      <h1>메인 화면</h1>
+      <p>여기는 메인 페이지입니다.</p>
+
+      <Link href="/signup">
+        <button style={{ marginTop: 16 }}>회원가입 하러 가기</button>
+      </Link>
+    </main>
   );
 }
