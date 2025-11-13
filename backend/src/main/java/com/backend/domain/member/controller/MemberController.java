@@ -6,28 +6,26 @@ import com.backend.domain.member.service.MemberService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController
+@Controller
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/member")
+@RequestMapping("/api/v1")
 public class MemberController {
   private final MemberService memberService;
 
-  @GetMapping
+  @GetMapping("/member")
   public List<Member> getMembers() {
     return memberService.findAll();
   }
 
-  @PostMapping("/signup")
-  public Member memberSignup(@RequestBody MemberCreateForm form) {
-    return memberService.signup(form);
-  }
 
-  @PostMapping("/signup")
+
+  @PostMapping("member/signup")
   public String signup(@Valid @ModelAttribute MemberCreateForm form, BindingResult bindingResult) {
     if(bindingResult.hasErrors()) {
       return "redirect:/api/v1/member/signup";
