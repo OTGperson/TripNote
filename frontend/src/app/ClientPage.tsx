@@ -8,14 +8,14 @@ export default function ClientPage() {
   useEffect(() => {
     const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-    fetch(`${API_BASE_URL}/api/v1/members`)
+    fetch(`${API_BASE_URL}/api/v1/member`)
       .then((response) => response.json())
       .then((data) => setMembers(data));
   }, []);
 
   return (
     <>
-      <h1>멤버 목록</h1>
+      <h1>멤버 목록1</h1>
       <ul>
         {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
         {members.map((member: any) => (
