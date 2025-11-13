@@ -15,7 +15,7 @@ export default function ClientPage() {
 
   return (
     <>
-      <h1>멤버 목록1</h1>
+      <h1>멤버 목록2</h1>
       <ul>
         {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
         {members.map((member: any) => (
