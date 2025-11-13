@@ -40,7 +40,7 @@ export default function SignupPage() {
     }
 
     try {
-      const res = await fetch(`${API_BASE_URL}/api/v1/member`);
+      const res = await fetch(`${API_BASE_URL}/api/v1/member/signup`);
       if (!res.ok) throw new Error();
       const data: Member[] = await res.json();
       setMembers(data);
@@ -75,7 +75,7 @@ export default function SignupPage() {
 
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/v1/member`, {
+      const res = await fetch(`${API_BASE_URL}/api/v1/member/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
