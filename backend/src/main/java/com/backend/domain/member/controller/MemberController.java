@@ -24,7 +24,7 @@ public class MemberController {
 
 
 
-  @PostMapping("member/signup")
+  @PostMapping("/member/signup")
   public String signup(@Valid @ModelAttribute MemberCreateForm form, BindingResult bindingResult) {
     if(bindingResult.hasErrors()) {
       return "redirect:/api/v1/member/signup";

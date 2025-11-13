@@ -28,6 +28,5 @@ public class Member {
   private String nickname;
 
   @Enumerated(EnumType.STRING)
-  @Builder.Default
   private MemberRole role = MemberRole.USER;
 }

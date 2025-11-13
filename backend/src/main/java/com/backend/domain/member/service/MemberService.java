@@ -1,6 +1,7 @@
 package com.backend.domain.member.service;
 
 import com.backend.domain.member.entity.Member;
+import com.backend.domain.member.enums.MemberRole;
 import com.backend.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ public class MemberService {
       .password(password)
       .nickname(nickname)
       .email(email)
+      .role(MemberRole.USER)
       .build();
 
     memberRepository.save(member);
