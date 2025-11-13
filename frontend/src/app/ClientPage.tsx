@@ -3,26 +3,25 @@
 import { useEffect, useState } from "react";
 
 export default function ClientPage() {
-  const [posts, setPosts] = useState([]);
+  const [members, setMembers] = useState([]);
 
   useEffect(() => {
     const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-    fetch(`${API_BASE_URL}/api/v1/posts`)
+    fetch(`${API_BASE_URL}/api/v1/members`)
       .then((response) => response.json())
-      .then((data) => setPosts(data));
+      .then((data) => setMembers(data));
   }, []);
 
   return (
-    // <>
-    //   <h1>게시글 목록</h1>
-    //    <ul>
-    //      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-    //      {posts.map((post: any) => (
-    //        <li key={post.id}>{post.title}</li>
-    //      ))}
-    //    </ul>
-    // </>
-    <></>
+    <>
+      <h1>게시글 목록</h1>
+      <ul>
+        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+        {members.map((member: any) => (
+          <li key={member.id}>{member.username}</li>
+        ))}
+      </ul>
+    </>
   );
 }

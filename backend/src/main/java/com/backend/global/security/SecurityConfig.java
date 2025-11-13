@@ -24,7 +24,8 @@ public class SecurityConfig {
   public SecurityFilterChain baseSecurityFilterChain(HttpSecurity http) throws Exception {
     http
       .authorizeHttpRequests(authorize -> authorize
-        .requestMatchers(HttpMethod.POST, "/api/*/member/signup").permitAll()
+        .requestMatchers(HttpMethod.GET, "/api/v1/member/signup").permitAll()
+        .requestMatchers(HttpMethod.POST, "/api/v1/member/signup").permitAll()
         .requestMatchers(HttpMethod.GET, "/api/*/posts/{id:\\d+}").permitAll()
         .requestMatchers(HttpMethod.GET, "/api/*/posts").permitAll()
         .requestMatchers("/api/*/**").authenticated()
