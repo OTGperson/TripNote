@@ -21,7 +21,7 @@ public class MemberService {
     return memberRepository.count();
   }
 
-  public void signup(String username, String password, String nickname, String email) {
+  public Member signup(String username, String password, String nickname, String email) {
     Member member = Member.builder()
       .username(username)
       .password(password)
@@ -30,7 +30,7 @@ public class MemberService {
       .role(MemberRole.USER)
       .build();
 
-    memberRepository.save(member);
+    return memberRepository.save(member);
   }
 
   public Member getMemberByUsername(String member) {
