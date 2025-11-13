@@ -6,10 +6,14 @@ spring:
       username: ${custom.prod.redis.username}
       password: ${custom.prod.redis.password}
   datasource:
-    url: jdbc:postgresql://otg-db-1.internal:5432/app_2025_10_24_prod
-    username: postgres
-    password: ${custom.prod.db.password}
-    driver-class-name: org.postgresql.Driver
+    url: jdbc:h2:mem:db_test;MODE=MySQL
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+#    url: jdbc:postgresql://trip-note-db.internal:5432/trip_note_prod
+#    username: postgres
+#    password: ${custom.prod.db.password}
+#    driver-class-name: org.postgresql.Driver
     hikari:
       auto-commit: false
   jpa:

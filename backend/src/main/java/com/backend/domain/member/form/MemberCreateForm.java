@@ -1,4 +1,4 @@
-package com.backend.domain.user.form;
+package com.backend.domain.member.form;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
@@ -8,7 +8,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class UserCreateForm {
+public class MemberCreateForm {
   @NotEmpty(message = "이메일은 필수항목입니다.")
   @Email
   private String email;

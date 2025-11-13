@@ -1,12 +1,6 @@
 spring:
-  data:
-    redis:
-      host: ${custom.prod.redis.host}
-      port: ${custom.prod.redis.port}
-      username: ${custom.prod.redis.username}
-      password: ${custom.prod.redis.password}
   datasource:
-    url: jdbc:postgresql://otg-db-1.internal:5432/app_2025_10_24_prod
+    url: jdbc:postgresql://trip-note-db.internal:5432/trip_note_prod
     username: postgres
     password: ${custom.prod.db.password}
     driver-class-name: org.postgresql.Driver
@@ -27,6 +21,7 @@ logging:
     org.hibernate.orm.jdbc.bind: INFO
     org.hibernate.orm.jdbc.extract: INFO
     org.springframework.transaction.interceptor: INFO
+    org.springframework.boot.context.config: INFO
 custom:
   site:
     cookieDomain: "${custom.prod.cookieDomain}"

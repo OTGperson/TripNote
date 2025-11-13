@@ -1,7 +1,7 @@
 package com.backend.domain.travelPlan.entity;
 
 import com.backend.domain.travelSchedule.entity.TravelSchedule;
-import com.backend.domain.user.entity.User;
+import com.backend.domain.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -24,7 +24,7 @@ public class TravelPlan {
   private Long id;
 
   @ManyToOne
-  private User author;
+  private Member author;
 
   private String title;
   private LocalDate startDate;

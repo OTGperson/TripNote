@@ -2,7 +2,7 @@ package com.backend.domain.travelSchedule.entity;
 
 import com.backend.domain.travelPlan.entity.TravelPlan;
 import com.backend.domain.travelScheduleDestination.entity.TSD;
-import com.backend.domain.user.entity.User;
+import com.backend.domain.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -32,7 +32,7 @@ public class TravelSchedule {
   private TravelPlan plan;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  private User author;
+  private Member author;
 
   private String title;
   private LocalDate scheduleDate;

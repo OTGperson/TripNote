@@ -1,6 +1,7 @@
 package com.backend;
 
-import com.backend.domain.user.service.UserService;
+import com.backend.domain.member.entity.Member;
+import com.backend.domain.member.service.MemberService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -11,31 +12,54 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-@ActiveProfiles({"test"})
+@ActiveProfiles("test")
 class BackendApplicationTests {
 
 	@Autowired
 	private MockMvc mvc;
+
 	@Autowired
-	private UserService userService;
+	private MemberService memberService;
 
 	@Test
 	@DisplayName("회원가입 테스트")
 	void t1() throws Exception {
+		// given
+		long before = memberService.count();
+
+		// when
 		ResultActions resultActions = mvc.perform(
-			multipart("/api/v1/user/signup")   // ← 슬래시 추가
-				.param("username", "user1")
-				.param("password", "1234")
-				.param("email", "user5@test.com")
-				.characterEncoding("UTF-8")
-		).andDo(print());
+				post("/api/v1/member/signup")
+					.param("username", "user3")
+					.param("password", "1234")
+					.param("nickname", "user3")
+					.param("email", "user3@test.com")
+					.characterEncoding("UTF-8")
+					.with(csrf())
+			)
+			.andDo(print());
 
+		// then
+		resultActions.andExpect(status().is3xxRedirection())
+			.andExpect(redirectedUrl("/"));
+
+		long after = memberService.count();
+		assertThat(after).isEqualTo(before + 1);
+
+		Member newMember = memberService.getMemberByUsername("user3");
+		assertThat(newMember).isNotNull();
+		assertThat(newMember.getUsername()).isEqualTo("user3");
+		assertThat(newMember.getEmail()).isEqualTo("user3@test.com");
 	}
-
 }
+
