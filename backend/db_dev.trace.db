@@ -1897,3 +1897,7 @@ Caused by: org.h2.jdbc.JdbcSQLNonTransientConnectionException: The connection wa
 	at org.h2.message.DbException.getJdbcSQLException(DbException.java:690)
 	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
 	... 100 more
+2025-11-13 21:16:29.721167+09:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "select * from member\000d\000adelete [*]from member where id=3"; SQL statement:
+select * from member
+delete from member where id=3 [42000-232]

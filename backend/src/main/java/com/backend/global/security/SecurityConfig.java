@@ -4,6 +4,8 @@ import com.backend.global.app.AppConfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -24,7 +26,8 @@ public class SecurityConfig {
   public SecurityFilterChain baseSecurityFilterChain(HttpSecurity http) throws Exception {
     http
       .authorizeHttpRequests(authorize -> authorize
-        .requestMatchers(HttpMethod.GET, "/api/*/member/signup").permitAll()
+        .requestMatchers(HttpMethod.GET, "/api/*/member").permitAll()
+        .requestMatchers(HttpMethod.POST, "/api/*/member/login").permitAll()
         .requestMatchers(HttpMethod.POST, "/api/*/member/signup").permitAll()
         .requestMatchers(HttpMethod.GET, "/api/*/posts/{id:\\d+}").permitAll()
         .requestMatchers(HttpMethod.GET, "/api/*/posts").permitAll()
@@ -65,5 +68,10 @@ public class SecurityConfig {
     source.registerCorsConfiguration("/api/**", configuration);
 
     return source;
+  }
+
+  @Bean
+  AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    return authenticationConfiguration.getAuthenticationManager();
   }
 }
