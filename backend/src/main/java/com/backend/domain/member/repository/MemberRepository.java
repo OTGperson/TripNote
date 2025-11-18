@@ -13,4 +13,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
   @Transactional
   @Query(value = "ALTER TABLE member AUTO_INCREMENT = 1", nativeQuery = true)
   void clearAutoIncrement();
+
+  Member findByEmail(String email);
 }

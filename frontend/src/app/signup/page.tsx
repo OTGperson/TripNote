@@ -20,6 +20,16 @@ export default function SignupPage() {
     password2: "",
     nickname: "",
   });
+
+  // 이메일 인증 관련 상태
+  const [emailCode, setEmailCode] = useState("");
+  const [emailSending, setEmailSending] = useState(false);
+  const [emailVerifying, setEmailVerifying] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(false);
+  const [emailMessage, setEmailMessage] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<string | null>(null);
+
+  // 전체 회원가입 관련 상태
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -27,8 +37,105 @@ export default function SignupPage() {
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
+
+    // 이메일이 바뀌면 인증 상태 초기화
+    if (name === "email") {
+      setEmailVerified(false);
+      setEmailCode("");
+      setEmailMessage(null);
+      setEmailError(null);
+    }
   };
 
+  // 1) 이메일 인증코드 보내기
+  const handleSendEmailCode = async () => {
+    setEmailMessage(null);
+    setEmailError(null);
+
+    if (!API_BASE_URL) {
+      setEmailError("NEXT_PUBLIC_API_BASE_URL가 설정되어 있지 않습니다.");
+      return;
+    }
+
+    if (!form.email) {
+      setEmailError("이메일을 먼저 입력해주세요.");
+      return;
+    }
+
+    setEmailSending(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/v1/member/email/send-code`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: form.email }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok || data.success === false) {
+        setEmailError(data.message ?? "인증 메일 전송 중 오류가 발생했습니다.");
+        return;
+      }
+
+      setEmailMessage("인증 코드를 이메일로 전송했습니다.");
+    } catch {
+      setEmailError("인증 메일 전송 중 오류가 발생했습니다.");
+    } finally {
+      setEmailSending(false);
+    }
+  };
+
+  // 2) 인증코드 검증
+  const handleVerifyEmailCode = async () => {
+    setEmailMessage(null);
+    setEmailError(null);
+
+    if (!API_BASE_URL) {
+      setEmailError("NEXT_PUBLIC_API_BASE_URL가 설정되어 있지 않습니다.");
+      return;
+    }
+
+    if (!form.email) {
+      setEmailError("이메일을 먼저 입력해주세요.");
+      return;
+    }
+
+    if (!emailCode) {
+      setEmailError("인증 코드를 입력해주세요.");
+      return;
+    }
+
+    setEmailVerifying(true);
+    try {
+      const res = await fetch(
+        `${API_BASE_URL}/api/v1/member/email/verify-code`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: form.email, code: emailCode }),
+        }
+      );
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok || data.success === false) {
+        setEmailVerified(false);
+        setEmailError(
+          data.message ?? "인증번호가 올바르지 않거나 만료되었습니다."
+        );
+        return;
+      }
+
+      setEmailVerified(true);
+      setEmailMessage("이메일 인증이 완료되었습니다.");
+    } catch {
+      setEmailError("이메일 인증 중 오류가 발생했습니다.");
+    } finally {
+      setEmailVerifying(false);
+    }
+  };
+
+  // 3) 최종 회원가입
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setMessage(null);
@@ -36,6 +143,11 @@ export default function SignupPage() {
 
     if (!API_BASE_URL) {
       setError("NEXT_PUBLIC_API_BASE_URL가 설정되어 있지 않습니다.");
+      return;
+    }
+
+    if (!emailVerified) {
+      setError("이메일 인증을 완료해주세요.");
       return;
     }
 
@@ -52,12 +164,15 @@ export default function SignupPage() {
         body: JSON.stringify(form),
       });
 
-      if (!res.ok) {
-        throw new Error();
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok || data.success === false) {
+        setError(data.message ?? "회원가입 중 오류가 발생했습니다.");
+        return;
       }
 
-      const created = await res.json();
-      setMessage(`회원가입 성공! 환영합니다, ${created.username}님.`);
+      setMessage(`회원가입 성공! 환영합니다, ${form.username}님.`);
+
       setForm({
         email: "",
         username: "",
@@ -65,6 +180,10 @@ export default function SignupPage() {
         password2: "",
         nickname: "",
       });
+      setEmailCode("");
+      setEmailVerified(false);
+      setEmailMessage(null);
+      setEmailError(null);
     } catch {
       setError("회원가입 중 오류가 발생했습니다.");
     } finally {
@@ -81,18 +200,68 @@ export default function SignupPage() {
         </header>
 
         <form className="signup-form" onSubmit={handleSubmit}>
+          {/* 이메일 + 인증 버튼 */}
           <div className="form-group">
             <label htmlFor="email">이메일</label>
-            <input
-              id="email"
-              type="email"
-              name="email"
-              value={form.email}
-              onChange={handleChange}
-              required
-              placeholder="example@tripnote.com"
-            />
+            <div style={{ display: "flex", gap: "8px" }}>
+              <input
+                id="email"
+                type="email"
+                name="email"
+                value={form.email}
+                onChange={handleChange}
+                required
+                placeholder="example@tripnote.com"
+                style={{ flex: 1 }}
+                disabled={emailVerified}
+              />
+              <button
+                type="button"
+                onClick={handleSendEmailCode}
+                disabled={emailSending || !form.email || emailVerified}
+                className="signup-button"
+                style={{ width: "120px", marginTop: 0 }}
+              >
+                {emailSending
+                  ? "전송 중..."
+                  : emailVerified
+                  ? "인증 완료"
+                  : "인증"}
+              </button>
+            </div>
           </div>
+
+          {/* 인증 코드 + 확인 버튼 */}
+          <div className="form-group">
+            <label htmlFor="emailCode">인증 코드</label>
+            <div style={{ display: "flex", gap: "8px" }}>
+              <input
+                id="emailCode"
+                type="text"
+                name="emailCode"
+                value={emailCode}
+                onChange={(e) => setEmailCode(e.target.value)}
+                placeholder="메일로 받은 6자리 코드를 입력"
+                style={{ flex: 1 }}
+                disabled={emailVerified}
+              />
+              <button
+                type="button"
+                onClick={handleVerifyEmailCode}
+                disabled={emailVerifying || !emailCode || emailVerified}
+                className="signup-button"
+                style={{ width: "120px", marginTop: 0 }}
+              >
+                {emailVerifying ? "확인 중..." : "확인"}
+              </button>
+            </div>
+          </div>
+
+          {/* 이메일 인증 관련 메시지 */}
+          {emailError && <p className="signup-message error">{emailError}</p>}
+          {emailMessage && (
+            <p className="signup-message success">{emailMessage}</p>
+          )}
 
           <div className="form-group">
             <label htmlFor="username">아이디</label>
@@ -146,6 +315,7 @@ export default function SignupPage() {
             />
           </div>
 
+          {/* 전체 회원가입 결과 메시지 */}
           {error && <p className="signup-message error">{error}</p>}
           {message && <p className="signup-message success">{message}</p>}
 
