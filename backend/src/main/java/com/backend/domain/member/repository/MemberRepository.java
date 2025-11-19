@@ -15,4 +15,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
   void clearAutoIncrement();
 
   Member findByEmail(String email);
+
+  boolean existsByEmail(String email);
 }

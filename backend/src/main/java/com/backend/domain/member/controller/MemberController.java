@@ -65,9 +65,23 @@ public class MemberController {
   @PostMapping("/email/send-code")
   public Map<String, Object> sendEmailCode(@RequestBody Map<String, String> body) {
     String email = body.get("email");
-
     Map<String, Object> result = new HashMap<>();
-    emailCheckService.sendCode(email);
+
+    // 이미 가입된 이메일인지 먼저 확인
+    if (emailCheckService.isEmailAlreadyRegistered(email)) {
+      result.put("success", false);
+      result.put("alreadyRegistered", true); // 🔹 프론트에서 이걸 보고 처리
+      result.put("message", "이미 가입된 이메일입니다.");
+      return result;
+    }
+
+    boolean sent = emailCheckService.sendCode(email);
+
+    if (!sent) {
+      result.put("success", false);
+      result.put("message", "인증 메일 전송에 실패했습니다. 잠시 후 다시 시도해주세요.");
+      return result;
+    }
 
     result.put("success", true);
     result.put("message", "인증 코드를 이메일로 전송했습니다.");

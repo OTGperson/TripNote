@@ -2,6 +2,7 @@ package com.backend.domain.member.service;
 
 import com.backend.domain.member.entity.Email;
 import com.backend.domain.member.repository.EmailRepository;
+import com.backend.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +15,7 @@ public class EmailCheckService {
 
   private final EmailRepository emailRepository;
   private final EmailService emailService;
+  private final MemberRepository memberRepository;
 
   private static final String CODE_CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   private static final int CODE_LENGTH = 6;
@@ -28,27 +30,37 @@ public class EmailCheckService {
     return sb.toString();
   }
 
-  public void sendCode(String email) {
+  public boolean isEmailAlreadyRegistered(String email) {
+    return memberRepository.existsByEmail(email);
+  }
+
+  public boolean sendCode(String email) {
+    // 이미 회원으로 가입된 이메일이면 false 리턴
+    if (isEmailAlreadyRegistered(email)) {
+      return false;
+    }
+
     String code = generateCode();
     LocalDateTime expiresAt = LocalDateTime.now().plusMinutes(10);
 
-    Email ec = emailRepository.findByEmail(email);
-    if (ec == null) {
-      ec = Email.builder()
+    Email ev = emailRepository.findByEmail(email);
+    if (ev == null) {
+      ev = Email.builder()
         .email(email)
         .code(code)
         .expireAt(expiresAt)
         .checked(false)
         .build();
     } else {
-      ec.setCode(code);
-      ec.setExpireAt(expiresAt);
-      ec.setChecked(false);
+      ev.setCode(code);
+      ev.setExpireAt(expiresAt);
+      ev.setChecked(false);
     }
 
-    emailRepository.save(ec);
+    emailRepository.save(ev);
 
-    emailService.sendMail(email, code);
+    boolean mailSent = emailService.sendMail(email, code);
+    return mailSent;
   }
 
   public boolean checkCode(String email, String code) {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, ChangeEvent, FormEvent } from "react";
+import { useRouter } from "next/navigation";
 
 type SignupForm = {
   email: string;
@@ -13,6 +14,8 @@ type SignupForm = {
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export default function SignupPage() {
+  const router = useRouter();
+
   const [form, setForm] = useState<SignupForm>({
     email: "",
     username: "",
@@ -21,7 +24,7 @@ export default function SignupPage() {
     nickname: "",
   });
 
-  // 이메일 인증 관련 상태
+  // 🔹 이메일 인증 관련 상태
   const [emailCode, setEmailCode] = useState("");
   const [emailSending, setEmailSending] = useState(false);
   const [emailVerifying, setEmailVerifying] = useState(false);
@@ -29,7 +32,7 @@ export default function SignupPage() {
   const [emailMessage, setEmailMessage] = useState<string | null>(null);
   const [emailError, setEmailError] = useState<string | null>(null);
 
-  // 전체 회원가입 관련 상태
+  // 🔹 전체 회원가입 관련 상태
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -47,7 +50,7 @@ export default function SignupPage() {
     }
   };
 
-  // 1) 이메일 인증코드 보내기
+  // 🔹 1) 이메일 인증 코드 보내기
   const handleSendEmailCode = async () => {
     setEmailMessage(null);
     setEmailError(null);
@@ -72,6 +75,17 @@ export default function SignupPage() {
 
       const data = await res.json().catch(() => ({}));
 
+      // 🔹 이미 가입된 이메일인 경우
+      if (data.alreadyRegistered) {
+        const goLogin = window.confirm(
+          "이미 가입된 이메일입니다.\n로그인 하러 가시겠습니까?"
+        );
+        if (goLogin) {
+          router.push("/login");
+        }
+        return;
+      }
+
       if (!res.ok || data.success === false) {
         setEmailError(data.message ?? "인증 메일 전송 중 오류가 발생했습니다.");
         return;
@@ -85,7 +99,7 @@ export default function SignupPage() {
     }
   };
 
-  // 2) 인증코드 검증
+  // 🔹 2) 인증 코드 검증
   const handleVerifyEmailCode = async () => {
     setEmailMessage(null);
     setEmailError(null);
@@ -108,7 +122,7 @@ export default function SignupPage() {
     setEmailVerifying(true);
     try {
       const res = await fetch(
-        `${API_BASE_URL}/api/v1/member/email/verify-code`,
+        `${API_BASE_URL}/api/v1/member/email/check-code`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -135,7 +149,7 @@ export default function SignupPage() {
     }
   };
 
-  // 3) 최종 회원가입
+  // 🔹 3) 최종 회원가입
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setMessage(null);
@@ -171,19 +185,9 @@ export default function SignupPage() {
         return;
       }
 
-      setMessage(`회원가입 성공! 환영합니다, ${form.username}님.`);
-
-      setForm({
-        email: "",
-        username: "",
-        password1: "",
-        password2: "",
-        nickname: "",
-      });
-      setEmailCode("");
-      setEmailVerified(false);
-      setEmailMessage(null);
-      setEmailError(null);
+      // ✅ 가입 성공 → 팝업 + /login 으로 이동
+      alert("회원가입이 완료되었습니다. 로그인 페이지로 이동합니다.");
+      router.push("/login");
     } catch {
       setError("회원가입 중 오류가 발생했습니다.");
     } finally {
@@ -315,7 +319,6 @@ export default function SignupPage() {
             />
           </div>
 
-          {/* 전체 회원가입 결과 메시지 */}
           {error && <p className="signup-message error">{error}</p>}
           {message && <p className="signup-message success">{message}</p>}
 
