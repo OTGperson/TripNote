@@ -70,7 +70,7 @@ public class MemberController {
     // 이미 가입된 이메일인지 먼저 확인
     if (emailCheckService.isEmailAlreadyRegistered(email)) {
       result.put("success", false);
-      result.put("alreadyRegistered", true); // 🔹 프론트에서 이걸 보고 처리
+      result.put("alreadyRegistered", true);
       result.put("message", "이미 가입된 이메일입니다.");
       return result;
     }
