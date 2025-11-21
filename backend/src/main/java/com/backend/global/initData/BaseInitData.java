@@ -1,6 +1,6 @@
 package com.backend.global.initData;
 
-import com.backend.domain.member.service.MemberService;
+import com.backend.domain.member.member.service.MemberService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
