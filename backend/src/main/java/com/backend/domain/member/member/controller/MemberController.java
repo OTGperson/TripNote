@@ -22,37 +22,21 @@ public class MemberController {
   private final EmailCheckService emailCheckService;
 
   @PostMapping("/email/send-code")
-  public RsData<Member> sendEmailCode(@Valid @RequestBody EmailSendForm form, BindingResult bindingResult) {
+  public RsData<?> sendEmailCode(@Valid @RequestBody EmailSendForm form, BindingResult bindingResult) {
     if (bindingResult.hasErrors()) {
-      return RsData.of("F-1", "입력값을 다시 확인해주세요.");
+      return RsData.fail("입력값을 다시 확인해주세요.");
     }
 
-    if (emailCheckService.isEmailAlreadyRegistered(form.getEmail())) {
-      return RsData.of("F-2", "이미 가입된 이메일입니다.");
-    }
-
-    boolean sent = emailCheckService.sendCode(form.getEmail());
-
-    if (!sent) {
-      return RsData.of("F-3", "인증 메일 전송에 실패했습니다.");
-    }
-
-    return RsData.of("S-1", "인증 코드를 이메일로 전송했습니다.");
+    return emailCheckService.sendCode(form.getEmail());
   }
 
   @PostMapping("/email/check-code")
-  public RsData<Member> checkEmailCode(@Valid @RequestBody EmailCheckForm form, BindingResult bindingResult) {
+  public RsData<?> checkEmailCode(@Valid @RequestBody EmailCheckForm form, BindingResult bindingResult) {
     if (bindingResult.hasErrors()) {
-      return RsData.of("F-1", "입력값을 다시 확인해주세요.");
+      return RsData.fail("입력값을 다시 확인해주세요.");
     }
 
-    boolean ok = emailCheckService.checkCode(form.getEmail(), form.getCode());
-
-    if (!ok) {
-      return RsData.of("F-4", "인증번호가 올바르지 않거나 만료되었습니다.");
-    }
-
-    return RsData.of("S-2", "이메일 인증이 완료되었습니다.");
+    return emailCheckService.checkCode(form.getEmail(), form.getCode());
   }
 
   @PostMapping("/signup")
@@ -69,7 +53,7 @@ public class MemberController {
     }
 
     if(bindingResult.hasErrors()) {
-      return RsData.of("F-1", "입력값을 다시 확인해주세요.");
+      return RsData.fail("입력값을 다시 확인해주세요.");
     }
 
     Member member;
@@ -81,12 +65,12 @@ public class MemberController {
         form.getEmail()
       );
     } catch (DataIntegrityViolationException e) {
-      return RsData.of("F-5", "이미 사용 중인 아이디입니다.");
+      return RsData.fail("F-5", "이미 사용 중인 아이디입니다.");
     } catch (Exception e) {
-      return RsData.of("F-6", "회원가입 중 오류가 발생하였습니다.");
+      return RsData.fail("F-6", "회원가입 중 오류가 발생하였습니다.");
     }
 
-    return RsData.of("S-3", "회원가입이 완료되었습니다.");
+    return RsData.success("회원가입이 완료되었습니다.", member);
   }
 
   @PostMapping("/login")
