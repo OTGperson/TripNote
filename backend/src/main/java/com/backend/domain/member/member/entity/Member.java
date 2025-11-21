@@ -1,6 +1,6 @@
-package com.backend.domain.member.entity;
+package com.backend.domain.member.member.entity;
 
-import com.backend.domain.member.enums.MemberRole;
+import com.backend.domain.member.member.enums.MemberRole;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;

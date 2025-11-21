@@ -1,6 +1,6 @@
-package com.backend.domain.member.repository;
+package com.backend.domain.member.member.repository;
 
-import com.backend.domain.member.entity.Member;
+import com.backend.domain.member.member.entity.Member;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -13,8 +13,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
   @Transactional
   @Query(value = "ALTER TABLE member AUTO_INCREMENT = 1", nativeQuery = true)
   void clearAutoIncrement();
-
-  Member findByEmail(String email);
 
   boolean existsByEmail(String email);
 }

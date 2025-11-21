@@ -1,4 +1,4 @@
-package com.backend.domain.member.entity;
+package com.backend.domain.member.email.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

@@ -1,4 +1,4 @@
-package com.backend.domain.member.form;
+package com.backend.domain.member.email.form;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

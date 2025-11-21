@@ -1,8 +1,8 @@
-package com.backend.domain.member.service;
+package com.backend.domain.member.member.service;
 
-import com.backend.domain.member.entity.Member;
-import com.backend.domain.member.enums.MemberRole;
-import com.backend.domain.member.repository.MemberRepository;
+import com.backend.domain.member.member.entity.Member;
+import com.backend.domain.member.member.enums.MemberRole;
+import com.backend.domain.member.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

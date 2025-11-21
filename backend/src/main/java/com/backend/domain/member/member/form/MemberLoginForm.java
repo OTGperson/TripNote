@@ -1,4 +1,4 @@
-package com.backend.domain.member.form;
+package com.backend.domain.member.member.form;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;

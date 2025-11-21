@@ -1,8 +1,8 @@
-package com.backend.domain.member.service;
+package com.backend.domain.member.email.service;
 
-import com.backend.domain.member.entity.Email;
-import com.backend.domain.member.repository.EmailRepository;
-import com.backend.domain.member.repository.MemberRepository;
+import com.backend.domain.member.email.entity.Email;
+import com.backend.domain.member.email.repository.EmailRepository;
+import com.backend.domain.member.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 public class EmailCheckService {
 
   private final EmailRepository emailRepository;
-  private final EmailService emailService;
+  private final EmailSendService emailSendService;
   private final MemberRepository memberRepository;
 
   private static final String CODE_CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -59,7 +59,7 @@ public class EmailCheckService {
 
     emailRepository.save(ev);
 
-    boolean mailSent = emailService.sendMail(email, code);
+    boolean mailSent = emailSendService.sendMail(email, code);
     return mailSent;
   }
 

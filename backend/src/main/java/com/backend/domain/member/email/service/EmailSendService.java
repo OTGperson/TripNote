@@ -1,4 +1,4 @@
-package com.backend.domain.member.service;
+package com.backend.domain.member.email.service;
 
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class EmailService {
+public class EmailSendService {
 
   private final JavaMailSender mailSender;
 

@@ -1,4 +1,4 @@
-package com.backend.domain.member.dto;
+package com.backend.global.dto;
 
 import lombok.Setter;
 
