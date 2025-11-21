@@ -7,12 +7,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class EmailCheckForm {
+public class EmailSendForm {
 
   @NotBlank(message = "이메일은 필수 입력값입니다.")
   @Email(message = "이메일 형식이 올바르지 않습니다.")
   private String email;
-
-  @NotBlank(message = "인증 코드를 입력해주세요.")
-  private String code;
 }
