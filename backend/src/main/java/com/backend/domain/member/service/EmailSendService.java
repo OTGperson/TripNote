@@ -40,7 +40,7 @@ public class EmailService {
       return true;
     } catch (Exception e) {
       System.out.println("[메일전송 실패] to=" + toEmail);
-      e.printStackTrace(); // 여기 콘솔에 진짜 원인이 찍힐 거예요
+      e.printStackTrace();
       return false;
     }
   }
