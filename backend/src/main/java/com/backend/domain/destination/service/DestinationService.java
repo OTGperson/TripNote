@@ -31,7 +31,7 @@ public class DestinationService {
 
   private final RestTemplate restTemplate = new RestTemplate();
 
-  public RsData<String> importDestinationsByArea(String areaCode) {
+  public RsData<Void> importDestinationsByArea(String areaCode) {
     URI uri = UriComponentsBuilder
       .fromHttpUrl(baseUrl + "/areaBasedList2")
       .queryParam("serviceKey", serviceKey)
@@ -39,7 +39,7 @@ public class DestinationService {
       .queryParam("MobileApp", "TripNote")
       .queryParam("_type", "json")
       .queryParam("areaCode", areaCode)
-      .queryParam("numOfRows", 100)
+      .queryParam("numOfRows", 1000)
       .queryParam("pageNo", 1)
       .build(true)
       .toUri();
@@ -62,7 +62,7 @@ public class DestinationService {
         .path("item");
 
       if (items.isMissingNode() || !items.isArray()) {
-        return RsData.fail("F-8", "[TourApi] item 배열이 없습니다.");
+        return RsData.fail("F-8", "[TourApi] areaCode=" + areaCode + " item 배열이 없습니다.");
       }
 
       for (JsonNode item : items) {
@@ -70,10 +70,11 @@ public class DestinationService {
 
         Destination dest = destinationRepository
           .findByExternalId(externalId)
-          .orElseGet(() -> Destination.builder()
-            .externalId(externalId)
-            .build()
-          );
+          .orElseGet(() -> {
+            Destination d = new Destination();
+            d.setExternalId(externalId);
+            return d;
+          });
 
         dest.setTitle(item.path("title").asText(""));
         dest.setAddr1(item.path("addr1").asText(null));
@@ -81,6 +82,7 @@ public class DestinationService {
         dest.setAreaCode(item.path("areacode").asText(null));
         dest.setSigunguCode(item.path("sigungucode").asText(null));
         dest.setFirstImage(item.path("firstimage").asText(null));
+        // 12:관광지, 14:문화시설, 15:축제공연행사, 25:여행코스, 28:레포츠, 32:숙박, 38:쇼핑, 39:음식점
         dest.setContentTypeId(item.path("contenttypeid").asInt(0));
 
         destinationRepository.save(dest);
@@ -94,7 +96,7 @@ public class DestinationService {
     }
   }
 
-  public RsData<String> importDestinationDetail(Destination dest) {
+  public RsData<Void> importDestinationDetail(Destination dest) {
     if (dest.getExternalId() == null) {
       return RsData.fail("F-7", "[TourApi] 호출 실패");
     }
@@ -148,6 +150,44 @@ public class DestinationService {
       e.printStackTrace();
       return RsData.fail("F-9", "[TourApi] JSON 파싱 중 오류");
     }
+  }
+
+  public RsData<Void> importAllDestinationDetails() {
+    List<Destination> allDestination = destinationRepository.findAll();
+
+    int successCount = 0;
+    int failCount = 0;
+
+    for (Destination dest : allDestination) {
+      RsData<Void> rs = importDestinationDetail(dest);
+      if (rs.isSuccess()) {
+        successCount++;
+      } else {
+        failCount++;
+        System.out.println("[TourApi] detail 실패");
+      }
+    }
+
+    if (failCount > 0) {
+      return RsData.fail(
+        "F-10",
+        "[TourApi] 상세 가져오기 중 일부 실패 (성공: " + successCount + ", 실패: " + failCount + ")"
+      );
+    }
+
+    return RsData.success("[TourApi] 모든 여행지 정보 가져오기 완료 (총 " + successCount + "건)");
+  }
+
+  public RsData<Void> syncAll() {
+    // 1) 지역별 목록 동기화
+//    for (int areaCode = 1; areaCode <= 17; areaCode++) {
+      importDestinationsByArea(String.valueOf(1));
+//    }
+
+    // 2) 상세 정보 동기화
+    importAllDestinationDetails();
+
+    return RsData.success("[TourApi] 전국 여행지(목록 + 상세) 동기화 완료");
   }
 
   public List<Destination> findAll() {

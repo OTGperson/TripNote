@@ -6,7 +6,6 @@ import com.backend.domain.destination.entity.Destination;
 import com.backend.domain.destination.service.DestinationService;
 import com.backend.global.dto.RsData;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Controller
 @RequiredArgsConstructor
@@ -37,7 +35,6 @@ public class DestinationController {
     return result;
   }
 
-  // 상세 조회
   @GetMapping("/{id}")
   public DestinationDetail getDestination(@PathVariable Long id) {
     Destination dest = destinationService.findById(id)
@@ -46,8 +43,8 @@ public class DestinationController {
     return new DestinationDetail(dest);
   }
 
-  @PostMapping("/import/{areaCode}")
-  public RsData<String> importByArea(@PathVariable String areaCode) {
-    return destinationService.importDestinationsByArea(areaCode);
+  @PostMapping("/admin/sync")
+  public RsData<Void> syncAll() {
+    return destinationService.syncAll();
   }
 }

@@ -26,10 +26,12 @@ public class SecurityConfig {
   public SecurityFilterChain baseSecurityFilterChain(HttpSecurity http) throws Exception {
     http
       .authorizeHttpRequests(authorize -> authorize
-        .requestMatchers(HttpMethod.POST, "/api/*/dest/import/*").permitAll()
-        .requestMatchers(HttpMethod.GET, "/api/*/dest/*").permitAll()
+        .requestMatchers(HttpMethod.POST, "/api/*/dest/admin/**").permitAll()
+        .requestMatchers(HttpMethod.GET, "/api/*/dest").permitAll()
+        .requestMatchers(HttpMethod.POST, "/api/*/dest/**").permitAll()
+        .requestMatchers(HttpMethod.GET, "/api/*/dest/**").permitAll()
         .requestMatchers(HttpMethod.POST, "/api/*/member/login").permitAll()
-        .requestMatchers(HttpMethod.POST, "/api/*/member/email/*").permitAll()
+        .requestMatchers(HttpMethod.POST, "/api/*/member/email/**").permitAll()
         .requestMatchers(HttpMethod.POST, "/api/*/member/signup").permitAll()
         .requestMatchers(HttpMethod.GET, "/api/*/posts/{id:\\d+}").permitAll()
         .requestMatchers(HttpMethod.GET, "/api/*/posts").permitAll()

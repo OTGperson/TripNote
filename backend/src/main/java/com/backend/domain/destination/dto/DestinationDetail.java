@@ -37,7 +37,9 @@ public class DestinationDetail {
     this.id = dest.getId();
     this.externalId = dest.getExternalId();
     this.title = dest.getTitle();
-    this.addr1 = dest.getAddr1();
+    this.addr1 = (dest.getAddr1() != null && !dest.getAddr1().isBlank())
+      ? dest.getAddr1()
+      : "주소 정보 없음";
     this.addr2 = dest.getAddr2();
     this.areaCode = dest.getAreaCode();
     this.sigunguCode = dest.getSigunguCode();
