@@ -14,11 +14,20 @@ public class Destination {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Column(nullable = false)
+  @Column(unique = true)
+  private Long externalId;
+
   private String title;
 
-  private String city;
-  private String coverImageUrl;
-  private String location;
+  private String addr1;
+  private String addr2;
+
+  private String areaCode;
+  private String sigunguCode;
+
+  private String firstImage;
+
   private String detail;
+
+  private Integer contentTypeId;
 }

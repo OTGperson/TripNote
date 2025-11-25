@@ -1,7 +1,7 @@
 package com.backend;
 
-import com.backend.domain.member.entity.Member;
-import com.backend.domain.member.service.MemberService;
+import com.backend.domain.member.member.entity.Member;
+import com.backend.domain.member.member.service.MemberService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

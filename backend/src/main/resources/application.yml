@@ -52,6 +52,9 @@ logging:
     org.hibernate.orm.jdbc.bind: TRACE
     org.hibernate.orm.jdbc.extract: TRACE
     org.springframework.transaction.interceptor: TRACE
+tourapi:
+  base-url: https://apis.data.go.kr/B551011/KorService2
+  service-key: "${custom.tourapi.service-key}"
 custom:
   dev:
     cookieDomain: localhost

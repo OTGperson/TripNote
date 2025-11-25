@@ -1,7 +1,7 @@
 package com.backend.domain.favoriteDestination.entity;
 
 import com.backend.domain.destination.entity.Destination;
-import com.backend.domain.member.entity.Member;
+import com.backend.domain.member.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
 

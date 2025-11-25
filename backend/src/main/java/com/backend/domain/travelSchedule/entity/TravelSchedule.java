@@ -2,7 +2,7 @@ package com.backend.domain.travelSchedule.entity;
 
 import com.backend.domain.travelPlan.entity.TravelPlan;
 import com.backend.domain.travelScheduleDestination.entity.TSD;
-import com.backend.domain.member.entity.Member;
+import com.backend.domain.member.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
