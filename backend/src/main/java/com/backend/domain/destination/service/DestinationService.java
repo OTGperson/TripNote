@@ -180,9 +180,10 @@ public class DestinationService {
 
   public RsData<Void> syncAll() {
     // 1) 지역별 목록 동기화
-//    for (int areaCode = 1; areaCode <= 17; areaCode++) {
-      importDestinationsByArea(String.valueOf(1));
-//    }
+    int[] areaCode = {1, 2, 3, 4, 5, 6, 7, 8, 31, 32, 33, 34, 35, 36, 37, 38, 39};
+    for (int i : areaCode) {
+      importDestinationsByArea(String.valueOf(i));
+    }
 
     // 2) 상세 정보 동기화
     importAllDestinationDetails();
