@@ -17,8 +17,8 @@ public class MemberService {
     return memberRepository.count();
   }
 
-  public Member getMemberByUsername(String username) {
-    return memberRepository.getMemberByUsername(username);
+  public Member findByUsername(String username) {
+    return memberRepository.findByUsername(username);
   }
 
   public Member signup(String username, String password, String nickname, String email) {
@@ -34,7 +34,7 @@ public class MemberService {
   }
 
   public Member login(String username, String password) {
-    Member member = memberRepository.getMemberByUsername(username);
+    Member member = memberRepository.findByUsername(username);
 
     if(member == null) {
       return null;

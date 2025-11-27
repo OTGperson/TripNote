@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
-  Member getMemberByUsername(String username);
+  Member findByUsername(String username);
 
   @Modifying
   @Transactional

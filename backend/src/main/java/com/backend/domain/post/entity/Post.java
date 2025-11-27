@@ -18,18 +18,18 @@ public class Post {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  private Long author_id;
+  private Long authorId;
   private String title;
 
   @Column(columnDefinition = "TEXT")
   private String content;
 
-  private boolean is_public;
+  private boolean isPublic;
 
   @CreatedDate
   @Column(updatable = false)
-  private LocalDateTime created_at;
+  private LocalDateTime createdAt;
 
   @LastModifiedDate
-  private LocalDateTime updated_at;
+  private LocalDateTime updatedAt;
 }

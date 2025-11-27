@@ -20,23 +20,18 @@ import java.util.*;
 public class DestinationController {
   private final DestinationService destinationService;
 
-  @GetMapping
-  public List<DestinationSummary> getDestinations() {
+  @GetMapping("list")
+  public List<DestinationSummary> destinationsList() {
     List<Destination> destinations = destinationService.findAll();
-
     List<DestinationSummary> result = new ArrayList<>();
-
     for (Destination dest : destinations) {
-      DestinationSummary ds = new DestinationSummary(dest);
-
-      result.add(ds);
+      result.add(new DestinationSummary(dest));
     }
-
     return result;
   }
 
   @GetMapping("/{id}")
-  public DestinationDetail getDestination(@PathVariable Long id) {
+  public DestinationDetail destinationDetail(@PathVariable Long id) {
     Destination dest = destinationService.findById(id)
       .orElseThrow(() -> new RuntimeException("해당 여행지를 찾을 수 없습니다."));
 

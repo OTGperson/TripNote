@@ -56,7 +56,7 @@ class BackendApplicationTests {
 		long after = memberService.count();
 		assertThat(after).isEqualTo(before + 1);
 
-		Member newMember = memberService.getMemberByUsername("user3");
+		Member newMember = memberService.findByUsername("user3");
 		assertThat(newMember).isNotNull();
 		assertThat(newMember.getUsername()).isEqualTo("user3");
 		assertThat(newMember.getEmail()).isEqualTo("user3@test.com");
