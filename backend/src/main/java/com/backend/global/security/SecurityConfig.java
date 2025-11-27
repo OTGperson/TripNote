@@ -22,46 +22,33 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig {
 
-//  @Bean
-//  public SecurityFilterChain baseSecurityFilterChain(HttpSecurity http) throws Exception {
-//    http
-//      .authorizeHttpRequests(authorize -> authorize
-//        .requestMatchers(HttpMethod.GET, "/api/v1/dest").permitAll()
-//        .requestMatchers(HttpMethod.GET, "/api/v1/dest/**").permitAll()
-//        .requestMatchers(HttpMethod.POST, "/api/v1/dest/**").permitAll()
-//        .requestMatchers(HttpMethod.POST, "/api/*/member/login").permitAll()
-//        .requestMatchers(HttpMethod.POST, "/api/*/member/email/**").permitAll()
-//        .requestMatchers(HttpMethod.POST, "/api/*/member/signup").permitAll()
-//        .requestMatchers(HttpMethod.GET, "/api/*/posts/{id:\\d+}").permitAll()
-//        .requestMatchers(HttpMethod.GET, "/api/*/posts").permitAll()
-//        .requestMatchers("/api/*/**").authenticated()
-//        .anyRequest().permitAll()
-//      )
-//      .headers(headers -> headers
-//        .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
-//      )
-//      .csrf(AbstractHttpConfigurer::disable)
-//      .formLogin(AbstractHttpConfigurer::disable)
-//      .sessionManagement(session -> session
-//        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-//      )
-//      .cors(cors -> cors.configurationSource(corsConfigurationSource()));
-//
-//    return http.build();
-//  }
-
   @Bean
   public SecurityFilterChain baseSecurityFilterChain(HttpSecurity http) throws Exception {
     http
-      .authorizeHttpRequests(auth -> auth
+      .authorizeHttpRequests(authorize -> authorize
+        .requestMatchers(HttpMethod.GET, "/api/v1/dest").permitAll()
+        .requestMatchers(HttpMethod.GET, "/api/v1/dest/**").permitAll()
+        .requestMatchers(HttpMethod.POST, "/api/v1/dest/**").permitAll()
+        .requestMatchers(HttpMethod.POST, "/api/*/member/login").permitAll()
+        .requestMatchers(HttpMethod.POST, "/api/*/member/email/**").permitAll()
+        .requestMatchers(HttpMethod.POST, "/api/*/member/signup").permitAll()
+        .requestMatchers(HttpMethod.GET, "/api/*/posts/{id:\\d+}").permitAll()
+        .requestMatchers(HttpMethod.GET, "/api/*/posts").permitAll()
+        .requestMatchers("/api/*/**").authenticated()
         .anyRequest().permitAll()
       )
+      .headers(headers -> headers
+        .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
+      )
       .csrf(AbstractHttpConfigurer::disable)
-      .formLogin(AbstractHttpConfigurer::disable);
+      .formLogin(AbstractHttpConfigurer::disable)
+      .sessionManagement(session -> session
+        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+      )
+      .cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
     return http.build();
   }
-
 
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
