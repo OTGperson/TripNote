@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class MemberService {
@@ -19,6 +21,18 @@ public class MemberService {
 
   public Member findByUsername(String username) {
     return memberRepository.findByUsername(username);
+  }
+
+  public Member createAdmin(String username, String password, String nickname, String email) {
+    Member member = Member.builder()
+      .username(username)
+      .password(passwordEncoder.encode(password))
+      .nickname(nickname)
+      .email(email)
+      .role(MemberRole.ADMIN)
+      .build();
+
+    return memberRepository.save(member);
   }
 
   public Member signup(String username, String password, String nickname, String email) {
@@ -45,5 +59,9 @@ public class MemberService {
     }
 
     return member;
+  }
+
+  public Optional<Member> findById(Long memberId) {
+    return memberRepository.findById(memberId);
   }
 }

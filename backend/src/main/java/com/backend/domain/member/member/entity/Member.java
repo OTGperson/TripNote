@@ -3,7 +3,6 @@ package com.backend.domain.member.member.entity;
 import com.backend.domain.member.member.enums.MemberRole;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Size;
 import lombok.*;
 
 @Entity

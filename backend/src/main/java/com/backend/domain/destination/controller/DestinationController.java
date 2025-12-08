@@ -40,4 +40,9 @@ public class DestinationController {
   public RsData<Void> syncAll() {
     return destinationService.syncAll();
   }
+
+  @PostMapping("/admin/sync/details")
+  public RsData<Void> syncDetailsBatch() {
+    return destinationService.importDestinationDetailsBatch();
+  }
 }

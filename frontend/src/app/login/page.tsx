@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, ChangeEvent, FormEvent } from "react";
+import { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -22,6 +22,14 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      router.replace("/");
+    }
+  }, [router]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -49,7 +57,6 @@ export default function LoginPage() {
 
       const data = await res.json().catch(() => ({}));
 
-      // success 플래그가 있다고 가정
       if (!res.ok || data.success === false) {
         const msg =
           data?.message || "아이디 또는 비밀번호가 일치하지 않습니다.";
@@ -57,12 +64,30 @@ export default function LoginPage() {
         return;
       }
 
-      // TODO: 나중에 여기에서 토큰/유저정보를 저장하거나 상태관리로 넘기면 됨
+      // 🔹 여기 중요: 토큰 + 유저 정보 저장
+      const user = data.data ?? data;
+
+      if (typeof window !== "undefined") {
+        if (user.accessToken) {
+          localStorage.setItem("accessToken", user.accessToken);
+        }
+        if (user.nickname) {
+          localStorage.setItem("nickname", user.nickname);
+        }
+        if (user.username) {
+          localStorage.setItem("username", user.username);
+        }
+        if (user.role) {
+          localStorage.setItem("role", user.role);
+        }
+      }
+
       setMessage(
-        `로그인 성공! 환영합니다, ${data.username ?? form.username}님.`
+        `로그인 성공! 환영합니다, ${
+          data.data?.nickname ?? data.data?.username ?? form.username
+        }님.`
       );
 
-      // 잠깐 보여주고 메인으로 이동 (원하면 주석 풀기)
       setTimeout(() => {
         router.push("/");
       }, 800);
@@ -119,7 +144,26 @@ export default function LoginPage() {
 
         <footer className="signup-footer">
           <span>아직 계정이 없으신가요?</span>
-          <Link href="/signup">회원가입 하러 가기</Link>
+          <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+            <Link href="/signup">회원가입 하러 가기</Link>
+            <span>/ </span>
+            <a
+              href="/"
+              type="button"
+              onClick={() => router.push("/")}
+              style={{
+                border: "none",
+                background: "none",
+                padding: 0,
+                margin: 0,
+                color: "#3b82f6",
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              비회원으로 계속하기
+            </a>
+          </div>
         </footer>
       </div>
     </main>

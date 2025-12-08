@@ -1,6 +1,8 @@
 package com.backend.global.security;
 
+import com.backend.domain.member.member.repository.MemberRepository;
 import com.backend.global.app.AppConfig;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -20,15 +22,20 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+  private final JwtProvider jwtProvider;
+  private final MemberRepository memberRepository;
 
   @Bean
   public SecurityFilterChain baseSecurityFilterChain(HttpSecurity http) throws Exception {
     http
       .authorizeHttpRequests(authorize -> authorize
-        .requestMatchers(HttpMethod.GET, "/api/v1/dest").permitAll()
-        .requestMatchers(HttpMethod.GET, "/api/v1/dest/**").permitAll()
-        .requestMatchers(HttpMethod.POST, "/api/v1/dest/**").permitAll()
+        .requestMatchers(HttpMethod.GET, "/api/*/dest").permitAll()
+        .requestMatchers(HttpMethod.GET, "/api/*/dest/**").permitAll()
+        .requestMatchers(HttpMethod.POST, "/api/*/dest/admin/**").hasRole("ADMIN")
+        .requestMatchers(HttpMethod.POST, "/api/*/favorites/**").authenticated()
         .requestMatchers(HttpMethod.POST, "/api/*/member/login").permitAll()
         .requestMatchers(HttpMethod.POST, "/api/*/member/email/**").permitAll()
         .requestMatchers(HttpMethod.POST, "/api/*/member/signup").permitAll()
@@ -46,6 +53,11 @@ public class SecurityConfig {
         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
       )
       .cors(cors -> cors.configurationSource(corsConfigurationSource()));
+
+    http.addFilterBefore(
+      new JwtAuthenticationFilter(jwtProvider, memberRepository),
+      org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class
+    );
 
     return http.build();
   }

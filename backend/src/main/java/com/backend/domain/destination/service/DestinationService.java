@@ -32,68 +32,82 @@ public class DestinationService {
   private final RestTemplate restTemplate = new RestTemplate();
 
   public RsData<Void> importDestinationsByArea(String areaCode) {
-    URI uri = UriComponentsBuilder
-      .fromHttpUrl(baseUrl + "/areaBasedList2")
-      .queryParam("serviceKey", serviceKey)
-      .queryParam("MobileOS", "ETC")
-      .queryParam("MobileApp", "TripNote")
-      .queryParam("_type", "json")
-      .queryParam("areaCode", areaCode)
-      .queryParam("numOfRows", 1000)
-      .queryParam("pageNo", 1)
-      .build(true)
-      .toUri();
+    final int numOfRows = 1000;
+    int pageNo = 1;
+    int importedCount = 0;
 
-    ResponseEntity<String> responseEntity =
-      restTemplate.getForEntity(uri, String.class);
+    while (true) {
+      URI uri = UriComponentsBuilder
+        .fromHttpUrl(baseUrl + "/areaBasedList2")
+        .queryParam("serviceKey", serviceKey)
+        .queryParam("MobileOS", "ETC")
+        .queryParam("MobileApp", "TripNote")
+        .queryParam("_type", "json")
+        .queryParam("areaCode", areaCode)
+        .queryParam("numOfRows", numOfRows)
+        .queryParam("pageNo", pageNo)
+        .build(true)
+        .toUri();
 
-    if (!responseEntity.getStatusCode().is2xxSuccessful()) {
-      return RsData.fail("F-7", "[TourApi] 호출 실패: " + responseEntity.getStatusCode());
-    }
+      ResponseEntity<String> responseEntity =
+        restTemplate.getForEntity(uri, String.class);
 
-    try {
-      String body = responseEntity.getBody();
-      JsonNode root = objectMapper.readTree(body);
-
-      JsonNode items = root
-        .path("response")
-        .path("body")
-        .path("items")
-        .path("item");
-
-      if (items.isMissingNode() || !items.isArray()) {
-        return RsData.fail("F-8", "[TourApi] areaCode=" + areaCode + " item 배열이 없습니다.");
+      if (!responseEntity.getStatusCode().is2xxSuccessful()) {
+        return RsData.fail("F-7", "[TourApi] 호출 실패: " + responseEntity.getStatusCode());
       }
 
-      for (JsonNode item : items) {
-        long externalId = item.path("contentid").asLong();
+      try {
+        String body = responseEntity.getBody();
+        JsonNode root = objectMapper.readTree(body);
 
-        Destination dest = destinationRepository
-          .findByExternalId(externalId)
-          .orElseGet(() -> {
-            Destination d = new Destination();
-            d.setExternalId(externalId);
-            return d;
-          });
+        JsonNode bodyNode = root
+          .path("response")
+          .path("body");
 
-        dest.setTitle(item.path("title").asText(""));
-        dest.setAddr1(item.path("addr1").asText(null));
-        dest.setAddr2(item.path("addr2").asText(null));
-        dest.setAreaCode(item.path("areacode").asText(null));
-        dest.setSigunguCode(item.path("sigungucode").asText(null));
-        dest.setFirstImage(item.path("firstimage").asText(null));
-        // 12:관광지, 14:문화시설, 15:축제공연행사, 25:여행코스, 28:레포츠, 32:숙박, 38:쇼핑, 39:음식점
-        dest.setContentTypeId(item.path("contenttypeid").asInt(0));
+        int totalCount = bodyNode.path("totalCount").asInt(0); // 전체 개수
+        JsonNode items = bodyNode
+          .path("items")
+          .path("item");
 
-        destinationRepository.save(dest);
+        // 더 이상 받아올 데이터가 없으면 종료
+        if (items.isMissingNode() || !items.isArray() || items.isEmpty()) {
+          break;
+        }
+
+        for (JsonNode item : items) {
+          long externalId = item.path("contentid").asLong();
+
+          Destination dest = destinationRepository
+            .findByExternalId(externalId)
+            .orElseGet(() -> {
+              Destination d = new Destination();
+              d.setExternalId(externalId);
+              return d;
+            });
+
+          dest.setTitle(item.path("title").asText(""));
+          dest.setAddr1(item.path("addr1").asText(null));
+          dest.setAddr2(item.path("addr2").asText(null));
+          dest.setAreaCode(item.path("areacode").asText(null));
+          dest.setSigunguCode(item.path("sigungucode").asText(null));
+          dest.setFirstImage(item.path("firstimage").asText(null));
+          // 12:관광지, 14:문화시설, 15:축제공연행사, 25:여행코스, 28:레포츠, 32:숙박, 38:쇼핑, 39:음식점
+          dest.setContentTypeId(item.path("contenttypeid").asInt(0));
+
+          destinationRepository.save(dest);
+          importedCount++;
+        }
+        int currentCount = pageNo * numOfRows;
+        if (currentCount >= totalCount) {
+          break;
+        }
+        pageNo++;
+      } catch (Exception e) {
+        e.printStackTrace();
+        return RsData.fail("F-9", "[TourApi] JSON 파싱 중 오류 (pageNo=" + pageNo + ")");
       }
-
-      return RsData.success("[TourApi] areaCode=" + areaCode + " 여행지 동기화 완료");
-
-    } catch (Exception e) {
-      e.printStackTrace();
-      return RsData.fail("F-9", "[TourApi] JSON 파싱 중 오류");
     }
+    return RsData.success("[TourApi] areaCode=" + areaCode + " 여행지 동기화 완료 (총 " + importedCount + "건)");
   }
 
   public RsData<Void> importDestinationDetail(Destination dest) {
@@ -112,8 +126,7 @@ public class DestinationService {
         .build(true)
         .toUri();
 
-      ResponseEntity<String> responseEntity =
-        restTemplate.getForEntity(uri, String.class);
+      ResponseEntity<String> responseEntity = restTemplate.getForEntity(uri, String.class);
 
       if (!responseEntity.getStatusCode().is2xxSuccessful()) {
         return RsData.fail("F-7", "[TourApi] 호출 실패: " + responseEntity.getStatusCode());
@@ -121,6 +134,17 @@ public class DestinationService {
 
       String body = responseEntity.getBody();
       JsonNode root = objectMapper.readTree(body);
+
+      JsonNode header = root.path("response").path("header");
+      String resultCode = header.path("resultCode").asText();
+      String resultMsg  = header.path("resultMsg").asText();
+
+      if (!"0000".equals(resultCode)) {
+        System.out.println("[TourApi] detail 실패 resultCode=" + resultCode + ", resultMsg=" + resultMsg);
+        dest.markDetailError();
+        destinationRepository.save(dest);
+        return RsData.fail("F-7", "[TourApi] 호출 실패: " + resultCode + " - " + resultMsg);
+      }
 
       JsonNode items = root
         .path("response")
@@ -131,7 +155,9 @@ public class DestinationService {
       JsonNode firstItem;
       if (items.isArray()) {
         if (items.size() == 0) {
-          return RsData.fail("F-8", "[TourApi] item 배열이 없습니다.");
+          dest.markDetailSuccess(null);
+          destinationRepository.save(dest);
+          return RsData.success("[TourApi] item 없음, overview 비어있음");
         }
         firstItem = items.get(0);
       } else {
@@ -140,53 +166,53 @@ public class DestinationService {
 
       String overview = firstItem.path("overview").asText(null);
 
-      dest.setDetail(overview);
-
+      dest.markDetailSuccess(overview);
       destinationRepository.save(dest);
 
       return RsData.success("[TourApi] 여행지 정보 가져오기 완료");
 
     } catch (Exception e) {
       e.printStackTrace();
+      destinationRepository.save(dest);
       return RsData.fail("F-9", "[TourApi] JSON 파싱 중 오류");
     }
   }
 
-  public RsData<Void> importAllDestinationDetails() {
-    List<Destination> allDestination = destinationRepository.findAll();
+  public RsData<Void> importDestinationDetailsBatch() {
+    List<Destination> targets = destinationRepository.findTop500ByDetailIsNull();
 
     int successCount = 0;
     int failCount = 0;
 
-    for (Destination dest : allDestination) {
+    for (Destination dest : targets) {
       RsData<Void> rs = importDestinationDetail(dest);
+
       if (rs.isSuccess()) {
         successCount++;
       } else {
         failCount++;
         System.out.println("[TourApi] detail 실패");
       }
+
+      try {
+        Thread.sleep(100); // 0.1초
+      } catch (InterruptedException ignored) {
+      }
     }
 
     if (failCount > 0) {
-      return RsData.fail(
-        "F-10",
-        "[TourApi] 상세 가져오기 중 일부 실패 (성공: " + successCount + ", 실패: " + failCount + ")"
-      );
+      return RsData.fail("F-10",
+        "[TourApi] 상세 가져오기 중 일부 실패 (성공: " + successCount + ", 실패: " + failCount + ")");
     }
 
-    return RsData.success("[TourApi] 모든 여행지 정보 가져오기 완료 (총 " + successCount + "건)");
+    return RsData.success("[TourApi] 여행지 정보 가져오기 완료 (총 " + successCount + "건)");
   }
 
   public RsData<Void> syncAll() {
-    // 1) 지역별 목록 동기화
     int[] areaCode = {1, 2, 3, 4, 5, 6, 7, 8, 31, 32, 33, 34, 35, 36, 37, 38, 39};
     for (int i : areaCode) {
       importDestinationsByArea(String.valueOf(i));
     }
-
-    // 2) 상세 정보 동기화
-    importAllDestinationDetails();
 
     return RsData.success("[TourApi] 전국 여행지(목록 + 상세) 동기화 완료");
   }

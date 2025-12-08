@@ -17,7 +17,7 @@ public class FavoriteDestination {
   private Long id;
 
   @ManyToOne
-  private Member user;
+  private Member member;
 
   @ManyToOne
   private Destination destination;

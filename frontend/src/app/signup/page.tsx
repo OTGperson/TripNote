@@ -329,7 +329,26 @@ export default function SignupPage() {
 
         <footer className="signup-footer">
           <span>이미 계정이 있으신가요?</span>
-          <a href="/login">로그인 하러 가기</a>
+          <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+            <a href="/login">로그인 하러 가기</a>
+            <span>/ </span>
+            <a
+              href="/"
+              type="button"
+              onClick={() => router.push("/")}
+              style={{
+                border: "none",
+                background: "none",
+                padding: 0,
+                margin: 0,
+                color: "#3b82f6",
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              비회원으로 계속하기
+            </a>
+          </div>
         </footer>
       </div>
     </main>

@@ -1,5 +1,6 @@
 package com.backend.domain.member.member.controller;
 
+import com.backend.domain.member.member.dto.LoginResponse;
 import com.backend.global.dto.RsData;
 import com.backend.domain.member.member.entity.Member;
 import com.backend.domain.member.email.form.EmailCheckForm;
@@ -8,6 +9,7 @@ import com.backend.domain.member.member.form.MemberCreateForm;
 import com.backend.domain.member.member.form.MemberLoginForm;
 import com.backend.domain.member.email.service.EmailCheckService;
 import com.backend.domain.member.member.service.MemberService;
+import com.backend.global.security.JwtProvider;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 public class MemberController {
   private final MemberService memberService;
   private final EmailCheckService emailCheckService;
+  private final JwtProvider jwtProvider;
 
   @PostMapping("/email/send-code")
   public RsData<?> sendEmailCode(@Valid @RequestBody EmailSendForm form, BindingResult bindingResult) {
@@ -42,7 +45,7 @@ public class MemberController {
   @PostMapping("/signup")
   public RsData<Member> signup(@Valid @RequestBody MemberCreateForm form, BindingResult bindingResult) {
 
-    if(!form.getPassword1().equals(form.getPassword2())) {
+    if (!form.getPassword1().equals(form.getPassword2())) {
       bindingResult.rejectValue("password2", "passwordInCorrect",
         "비밀번호가 일치하지 않습니다.");
     }
@@ -52,7 +55,7 @@ public class MemberController {
         "이메일 인증이 아직 진행되지 않았습니다.");
     }
 
-    if(bindingResult.hasErrors()) {
+    if (bindingResult.hasErrors()) {
       return RsData.fail("입력값을 다시 확인해주세요.");
     }
 
@@ -74,10 +77,22 @@ public class MemberController {
   }
 
   @PostMapping("/login")
-  public Member login(@RequestBody MemberLoginForm form) {
-    return memberService.login(
-      form.getUsername(),
-      form.getPassword()
-    );
+  public RsData<LoginResponse> login(@RequestBody MemberLoginForm form) {
+    Member member = memberService.login(form.getUsername(), form.getPassword());
+    if (member == null) {
+      return RsData.fail("F-1", "아이디 또는 비밀번호가 일치하지 않습니다.");
+    }
+
+    String token = jwtProvider.generateAccessToken(member);
+
+    LoginResponse dto = LoginResponse.builder()
+      .id(member.getId())
+      .username(member.getUsername())
+      .nickname(member.getNickname())
+      .role(member.getRole())
+      .accessToken(token)
+      .build();
+
+    return RsData.success("로그인에 성공했습니다.", dto);
   }
 }
