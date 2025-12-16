@@ -15,6 +15,7 @@ type DestinationDetail = {
   addr2?: string | null;
   contentTypeId: number;
   detail?: string | null;
+  favorite?: boolean; // 🔹 서버에서 내려주는 즐겨찾기 여부
 };
 
 const AREA_LABELS: Record<string, string> = {
@@ -60,7 +61,7 @@ export default function DestinationDetailPage() {
   // 🔹 이 페이지용 즐겨찾기 상태
   const [favorite, setFavorite] = useState(false);
 
-  // 1) 상세 데이터 가져오기
+  // 1) 상세 데이터 + 초기 favorite 상태 가져오기
   useEffect(() => {
     if (!id) return;
     if (!API_BASE_URL) {
@@ -72,12 +73,29 @@ export default function DestinationDetailPage() {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`${API_BASE_URL}/api/v1/dest/${id}`);
+        // 토큰이 있으면 Authorization 헤더도 같이 보내기 (로그인 유저 favorite 계산용)
+        let headers: HeadersInit = {};
+        if (typeof window !== "undefined") {
+          const token = localStorage.getItem("accessToken");
+          if (token) {
+            headers = {
+              ...headers,
+              Authorization: `Bearer ${token}`,
+            };
+          }
+        }
+
+        const res = await fetch(`${API_BASE_URL}/api/v1/dest/${id}`, {
+          headers,
+        });
+
         if (!res.ok) {
           throw new Error(`detail fetch failed: ${res.status}`);
         }
+
         const json: DestinationDetail = await res.json();
         setData(json);
+        setFavorite(Boolean(json.favorite)); // 🔹 서버가 내려준 값으로 초기 설정
       } catch (e) {
         console.error(e);
         setError("여행지 정보를 불러오는 중 오류가 발생했습니다.");
@@ -89,43 +107,11 @@ export default function DestinationDetailPage() {
     fetchDetail();
   }, [id]);
 
-  // 2) 데이터 로딩 후, 이미 즐겨찾기인지 서버에 물어보기
-  useEffect(() => {
-    if (!data) return;
-    if (typeof window === "undefined") return;
-    if (!API_BASE_URL) return;
-
-    const token = localStorage.getItem("accessToken");
-    if (!token) return; // 비회원이면 그냥 패스
-
-    (async () => {
-      try {
-        const res = await fetch(`${API_BASE_URL}/api/v1/favorites/${data.id}`, {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        const body = await res.json().catch(() => ({}));
-
-        if (!res.ok || body.success === false) {
-          return;
-        }
-
-        const isFav: boolean = body.data ?? body;
-        setFavorite(isFav);
-      } catch (e) {
-        console.error("초기 즐겨찾기 상태 조회 실패", e);
-      }
-    })();
-  }, [data]);
-
   const handleBack = () => {
     router.back();
   };
 
-  // ⬇⬇⬇ 여기부터는 Hook 호출이 없음 (조건부 렌더링은 이제 안전함)
+  // ⬇⬇⬇ 여기부터는 Hook 호출 없음
 
   if (loading) {
     return (
@@ -162,7 +148,7 @@ export default function DestinationDetailPage() {
     );
   }
 
-  // 즐겨찾기 토글
+  // 2) 즐겨찾기 토글
   const handleToggleFavorite = async () => {
     if (!data) return;
     if (typeof window === "undefined") return;
@@ -267,7 +253,7 @@ export default function DestinationDetailPage() {
 
           {/* 본문 내용 */}
           <div className="p-5 md:p-6 space-y-4">
-            {/* 제목 + 태그 라인 */}
+            {/* 제목 + 즐겨찾기 버튼 */}
             <div>
               <div className="flex items-center gap-3">
                 <h1 className="text-2xl font-bold text-slate-900">

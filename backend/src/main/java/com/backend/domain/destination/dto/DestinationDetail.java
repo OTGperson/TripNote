@@ -33,7 +33,9 @@ public class DestinationDetail {
   private String detail;
   private Integer contentTypeId;
 
-  public DestinationDetail(Destination dest) {
+  private boolean favorite;
+
+  public DestinationDetail(Destination dest, boolean favorite) {
     this.id = dest.getId();
     this.externalId = dest.getExternalId();
     this.title = dest.getTitle();
@@ -46,5 +48,10 @@ public class DestinationDetail {
     this.firstImage = dest.getFirstImage();
     this.detail = dest.getDetail();
     this.contentTypeId = dest.getContentTypeId();
+    this.favorite = favorite;
+  }
+
+  public DestinationDetail(Destination dest) {
+    this(dest, false);
   }
 }

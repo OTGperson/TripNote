@@ -111,6 +111,7 @@ export default function HomePage() {
     fetchDestinations();
   }, []);
 
+  // 로그인 상태 / 토큰 만료 체크
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -145,6 +146,7 @@ export default function HomePage() {
     // 아직 유효한 토큰이면 로그인 상태 유지
     setIsLoggedIn(true);
     setNickname(storedNickname ?? storedUsername ?? null);
+    setUsername(storedUsername ?? null);
 
     // 남은 시간 후 자동 로그아웃 타이머
     const timeoutMs = (payload.exp - nowSec) * 1000;
@@ -214,7 +216,7 @@ export default function HomePage() {
     ...Object.keys(CONTENT_TYPE_LABELS).map(Number),
   ];
 
-  // 즐겨찾기
+  // 즐겨찾기 토글
   const handleToggleFavorite = async (destId: number) => {
     if (typeof window === "undefined") return;
 
@@ -260,6 +262,7 @@ export default function HomePage() {
     }
   };
 
+  // 초기 즐겨찾기 목록 로딩
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (!API_BASE_URL) return;
@@ -291,7 +294,7 @@ export default function HomePage() {
   }, []);
 
   return (
-    // 🔹 헤더가 fixed가 되면서 겹치지 않도록 pt-16(대략 64px) 추가
+    // 헤더 fixed라서 pt-16
     <div className="min-h-screen bg-slate-50 flex flex-col pt-16">
       {/* 헤더 */}
       <header className="fixed top-0 left-0 right-0 z-50 w-full border-b bg-white/80 backdrop-blur-sm">
@@ -306,9 +309,9 @@ export default function HomePage() {
             <span className="text-xl font-bold text-slate-900">TripNote</span>
           </Link>
 
-          {/* 오른쪽 로그인 / 회원가입 or 유저명 / 로그아웃 */}
+          {/* 오른쪽 영역 */}
           <nav className="flex items-center gap-3">
-            {/* 🔹 관리자에게만 보이는 버튼 */}
+            {/* 관리자 전용 버튼들 */}
             {role === "ADMIN" && (
               <button
                 type="button"
@@ -344,7 +347,7 @@ export default function HomePage() {
 
                   alert("전국 여행지 동기화가 완료되었습니다.");
                 }}
-                className="px-3 py-1.5 rounded-full text-xs font-semibold bg-amber-500 text-white hover:bg-amber-600"
+                className="px-3 py-1.5 rounded-full text-xs font-semibold bg-amber-500 text-white hover:bg-amber-600 cursor-pointer"
               >
                 여행지 동기화
               </button>
@@ -384,25 +387,44 @@ export default function HomePage() {
 
                   alert("여행지의 상세설명 추가가 완료되었습니다.");
                 }}
-                className="px-3 py-1.5 rounded-full text-xs font-semibold bg-amber-500 text-white hover:bg-amber-600"
+                className="px-3 py-1.5 rounded-full text-xs font-semibold bg-amber-500 text-white hover:bg-amber-600 cursor-pointer"
               >
                 여행지 상세설명 추가
               </button>
             )}
 
-            {/* 일반 로그인/회원가입 버튼들 */}
+            {/* 로그인 / 마이페이지 / 게시글 작성 / 로그아웃 영역 */}
             {isLoggedIn ? (
               <>
-                {/* 나중에 “마이페이지” 같은 것도 여기 추가 가능 */}
                 {nickname && (
-                  <span className="text-sm text-slate-700 mr-2">
-                    {nickname}님, 안녕하세요 👋
+                  <span className="text-sm text-slate-700 mr-1">
+                    {nickname}님 👋
                   </span>
                 )}
+
+                {/* 마이페이지 */}
+                <button
+                  type="button"
+                  onClick={() => router.push("/mypage")}
+                  className="px-3 py-1.5 rounded-full text-sm font-medium text-slate-700 hover:bg-slate-100 cursor-pointer"
+                >
+                  마이페이지
+                </button>
+
+                {/* 🔹 게시글 작성 버튼 추가 */}
+                <button
+                  type="button"
+                  onClick={() => router.push("/posts/new")}
+                  className="px-3 py-1.5 rounded-full text-sm font-medium text-slate-700 hover:bg-slate-100 cursor-pointer"
+                >
+                  게시글 작성
+                </button>
+
+                {/* 로그아웃 */}
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="px-3 py-1.5 rounded-full text-sm font-medium text-slate-700 hover:bg-slate-100"
+                  className="px-3 py-1.5 rounded-full text-sm font-medium text-slate-700 hover:bg-slate-100 cursor-pointer"
                 >
                   로그아웃
                 </button>
@@ -411,13 +433,13 @@ export default function HomePage() {
               <>
                 <Link
                   href="/login"
-                  className="px-3 py-1.5 rounded-full text-sm font-medium text-slate-700 hover:bg-slate-100"
+                  className="px-3 py-1.5 rounded-full text-sm font-medium text-slate-700 hover:bg-slate-100 cursor-pointer"
                 >
                   로그인
                 </Link>
                 <Link
                   href="/signup"
-                  className="px-4 py-1.5 rounded-full text-sm font-semibold bg-blue-500 text-white hover:bg-blue-600 shadow-sm"
+                  className="px-4 py-1.5 rounded-full text-sm font-semibold bg-blue-500 text-white hover:bg-blue-600 shadow-sm cursor-pointer"
                 >
                   회원가입
                 </Link>
@@ -467,6 +489,8 @@ export default function HomePage() {
                 const hasImage =
                   !!dest.firstImage && dest.firstImage.trim() !== "";
 
+                const isFav = favoriteIds.includes(dest.id);
+
                 return (
                   <article
                     key={dest.id}
@@ -504,25 +528,19 @@ export default function HomePage() {
                           onClick={() => handleToggleFavorite(dest.id)}
                           className={`inline-flex items-center justify-center w-8 h-8 rounded-full border transition
     ${
-      favoriteIds.includes(dest.id)
+      isFav
         ? "border-yellow-400 bg-yellow-100"
         : "border-slate-300 bg-white hover:bg-slate-50"
     }
   `}
-                          aria-label={
-                            favoriteIds.includes(dest.id)
-                              ? "즐겨찾기 해제"
-                              : "즐겨찾기 추가"
-                          }
+                          aria-label={isFav ? "즐겨찾기 해제" : "즐겨찾기 추가"}
                         >
                           <span
                             className={
-                              favoriteIds.includes(dest.id)
-                                ? "text-yellow-400"
-                                : "text-slate-400"
+                              isFav ? "text-yellow-400" : "text-slate-400"
                             }
                           >
-                            {favoriteIds.includes(dest.id) ? "★" : "☆"}
+                            {isFav ? "★" : "☆"}
                           </span>
                         </button>
                       </div>

@@ -36,7 +36,7 @@ public class FavoriteDestinationController {
     return RsData.of("S-1", "조회 성공");
   }
 
-  @GetMapping("/mypage")
+  @GetMapping("/my")
   public List<Long> myFavorites(@AuthenticationPrincipal Member member) {
     List<Long> ids = favoriteDestinationService.findDestinationIdsByMember(member);
     return ids;

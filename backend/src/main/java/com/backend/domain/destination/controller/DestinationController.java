@@ -4,8 +4,11 @@ import com.backend.domain.destination.dto.DestinationDetail;
 import com.backend.domain.destination.dto.DestinationSummary;
 import com.backend.domain.destination.entity.Destination;
 import com.backend.domain.destination.service.DestinationService;
+import com.backend.domain.favoriteDestination.service.FavoriteDestinationService;
+import com.backend.domain.member.member.entity.Member;
 import com.backend.global.dto.RsData;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -15,6 +18,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class DestinationController {
   private final DestinationService destinationService;
+  private final FavoriteDestinationService favoriteDestinationService;
 
   @GetMapping
   public List<DestinationSummary> getDestinations() {
@@ -29,11 +33,16 @@ public class DestinationController {
   }
 
   @GetMapping("/{id}")
-  public DestinationDetail getDestination(@PathVariable Long id) {
+  public DestinationDetail getDestination(@PathVariable Long id, @AuthenticationPrincipal Member member) {
     Destination dest = destinationService.findById(id)
       .orElseThrow(() -> new RuntimeException("해당 여행지를 찾을 수 없습니다."));
 
-    return new DestinationDetail(dest);
+    boolean favorite = false;
+    if (member != null) {
+      favorite = favoriteDestinationService.isFavorite(member, dest.getId());
+    }
+
+    return new DestinationDetail(dest, favorite);
   }
 
   @PostMapping("/admin/sync")
