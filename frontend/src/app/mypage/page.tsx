@@ -335,7 +335,7 @@ export default function MyPage() {
       setLoadingPosts(true);
       setPostsError(null);
       try {
-        const res = await fetch(`${API_BASE_URL}/api/v1/post/me`, {
+        const res = await fetch(`${API_BASE_URL}/api/v1/post/my`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
