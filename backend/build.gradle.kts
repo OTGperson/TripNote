@@ -46,6 +46,7 @@ dependencies {
 	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
 	implementation("org.springframework.boot:spring-boot-starter-mail")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
+	implementation("org.apache.tika:tika-core:2.4.1")
 }
 
 tasks.withType<Test> {
